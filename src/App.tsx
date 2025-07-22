@@ -9,6 +9,7 @@ import { PaymentManagement } from './components/payments/PaymentManagement';
 import { ChargeManagement } from './components/charges/ChargeManagement';
 import { UserManagement } from './components/users/UserManagement';
 import { DefaultersManagement } from './components/defaulters/DefaultersManagement';
+import { ReportsManagement } from './components/reports/ReportsManagement';
 import { useAuth } from './hooks/useAuth';
 
 const AppContent: React.FC = () => {
@@ -61,12 +62,7 @@ const AppContent: React.FC = () => {
           </div>
         );
       case 'reports':
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2>
-            <p className="text-gray-600">Reporting functionality coming soon...</p>
-          </div>
-        );
+        return <ReportsManagement />;
       case 'notifications':
         return (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
