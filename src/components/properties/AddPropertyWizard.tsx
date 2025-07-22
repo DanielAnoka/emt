@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Property, User, ServiceCharge } from '../../types';
 import { X, ArrowLeft, ArrowRight, Check, Home, User as UserIcon, CreditCard } from 'lucide-react';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 interface AddPropertyWizardProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (propertyData: any) => void;
+  onAdd: (propertyData: any) => Promise<void>;
 }
 
 interface PropertyFormData {
@@ -70,6 +71,7 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
   
   const [charges, setCharges] = useState<ChargeFormData[]>(defaultCharges);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tabs = [
     { id: 0, name: 'Property Details', icon: Home },
@@ -88,7 +90,7 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
     } else if (currentTab === 1) {
       if (!tenantData.name.trim()) newErrors.tenantName = 'Tenant name is required';
       if (!tenantData.email.trim()) newErrors.tenantEmail = 'Tenant email is required';
-      if (!tenantData.phone.trim()) newErrors.tenantPhone = 'Tenant phone is required';
+      await onAdd(completeData);
       
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (tenantData.email && !emailRegex.test(tenantData.email)) {
@@ -140,7 +142,10 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
     ));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    
+    try {
     const selectedCharges = charges.filter(charge => charge.selected);
     
     const completeData = {
@@ -173,6 +178,11 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
     });
     setCharges(defaultCharges);
     setErrors({});
+    } catch (error) {
+      console.error('Error adding property:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -505,10 +515,20 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
           ) : (
             <button
               onClick={handleSubmit}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors duration-150"
+              disabled={isSubmitting}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Check className="w-4 h-4 mr-2" />
-              Create Property
+              {isSubmitting ? (
+                <>
+                  <LoadingSpinner size="sm" color="white" />
+                  <span className="ml-2">Creating Property...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Create Property
+                </>
+              )}
             </button>
           )}
         </div>

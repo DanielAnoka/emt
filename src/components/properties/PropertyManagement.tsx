@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Property } from '../../types';
 import { PropertyCard } from './PropertyCard';
 import { AddPropertyWizard } from './AddPropertyWizard';
+import { Toast } from '../ui/Toast';
 import { Plus, Search, Filter, Grid, List } from 'lucide-react';
 
 // Mock data
@@ -70,6 +71,15 @@ export const PropertyManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'vacant' | 'occupied' | 'pending'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isAddWizardOpen, setIsAddWizardOpen] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: 'success' | 'error';
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'success',
+    isVisible: false,
+  });
 
   const handleApprove = (propertyId: string) => {
     setProperties(prev => 
@@ -91,32 +101,55 @@ export const PropertyManagement: React.FC = () => {
     console.log('Viewing property:', propertyId);
   };
 
-  const handleAddProperty = (propertyData: any) => {
-    // Create new property from wizard data
-    const newProperty: Property = {
-      id: Date.now().toString(),
-      title: propertyData.property.title,
-      description: propertyData.property.description,
-      type: propertyData.property.type,
-      estateType: propertyData.property.estateType,
-      bedrooms: propertyData.property.bedrooms,
-      bathrooms: propertyData.property.bathrooms,
-      rent: propertyData.property.rent,
-      serviceCharge: propertyData.property.serviceCharge,
-      isVacant: false, // Since we're adding a tenant
-      landlordId: '3', // Current user ID
-      houseNumber: propertyData.property.houseNumber,
-      images: [],
-      amenities: [],
-      createdAt: new Date().toISOString(),
-      approved: false,
-    };
-    
-    setProperties(prev => [newProperty, ...prev]);
-    setIsAddWizardOpen(false);
-    
-    // Here you would also create the tenant and charges in a real app
-    console.log('Property created with tenant and charges:', propertyData);
+  const handleAddProperty = async (propertyData: any) => {
+    try {
+      // Simulate API call with loading delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Create new property from wizard data
+      const newProperty: Property = {
+        id: Date.now().toString(),
+        title: propertyData.property.title,
+        description: propertyData.property.description,
+        type: propertyData.property.type,
+        estateType: propertyData.property.estateType,
+        bedrooms: propertyData.property.bedrooms,
+        bathrooms: propertyData.property.bathrooms,
+        rent: propertyData.property.rent,
+        serviceCharge: propertyData.property.serviceCharge,
+        isVacant: false, // Since we're adding a tenant
+        landlordId: '3', // Current user ID
+        houseNumber: propertyData.property.houseNumber,
+        images: [],
+        amenities: [],
+        createdAt: new Date().toISOString(),
+        approved: false,
+      };
+      
+      setProperties(prev => [newProperty, ...prev]);
+      setIsAddWizardOpen(false);
+      
+      // Show success toast
+      setToast({
+        message: 'Property created successfully! Tenant and charges have been set up.',
+        type: 'success',
+        isVisible: true,
+      });
+      
+      // Here you would also create the tenant and charges in a real app
+      console.log('Property created with tenant and charges:', propertyData);
+    } catch (error) {
+      console.error('Error creating property:', error);
+      setToast({
+        message: 'Failed to create property. Please try again.',
+        type: 'error',
+        isVisible: true,
+      });
+    }
+  };
+
+  const handleCloseToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
   };
 
   const filteredProperties = properties.filter(property => {
@@ -254,6 +287,14 @@ export const PropertyManagement: React.FC = () => {
         isOpen={isAddWizardOpen}
         onClose={() => setIsAddWizardOpen(false)}
         onAdd={handleAddProperty}
+      />
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={handleCloseToast}
       />
     </div>
   );
