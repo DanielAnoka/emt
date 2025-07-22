@@ -90,7 +90,6 @@ export const AddPropertyWizard: React.FC<AddPropertyWizardProps> = ({ isOpen, on
     } else if (currentTab === 1) {
       if (!tenantData.name.trim()) newErrors.tenantName = 'Tenant name is required';
       if (!tenantData.email.trim()) newErrors.tenantEmail = 'Tenant email is required';
-      await onAdd(completeData);
       
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (tenantData.email && !emailRegex.test(tenantData.email)) {
