@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './components/auth/AuthProvider';
+import { LandingPage } from './components/landing/LandingPage';
 import { LoginForm } from './components/auth/LoginForm';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { Dashboard } from './components/dashboard/Dashboard';
+import { EstateManagement } from './components/estates/EstateManagement';
 import { PropertyManagement } from './components/properties/PropertyManagement';
 import { PaymentManagement } from './components/payments/PaymentManagement';
 import { ChargeManagement } from './components/charges/ChargeManagement';
@@ -16,9 +18,11 @@ const AppContent: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   const handleLogin = () => {
     setActiveTab('dashboard');
+    setShowLogin(false);
   };
 
   const handleMobileMenuToggle = () => {
@@ -29,7 +33,14 @@ const AppContent: React.FC = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleGetStarted = () => {
+    setShowLogin(true);
+  };
+
   if (!user) {
+    if (!showLogin) {
+      return <LandingPage onGetStarted={handleGetStarted} />;
+    }
     return <LoginForm onSuccess={handleLogin} />;
   }
 
@@ -37,6 +48,8 @@ const AppContent: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
+      case 'estates':
+        return <EstateManagement />;
       case 'properties':
         return <PropertyManagement />;
       case 'charges':

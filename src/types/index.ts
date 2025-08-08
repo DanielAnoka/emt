@@ -58,6 +58,8 @@ export interface Estate {
   totalUnits: number;
   occupiedUnits: number;
   adminId: string;
+  createdAt: string;
+  isActive: boolean;
 }
 
 export interface ActivityLog {
@@ -76,17 +78,6 @@ export interface Household {
   cars: number;
   houseNumber: string;
   estateId?: string;
-}
-
-export interface Estate {
-  id: string;
-  name: string;
-  address: string;
-  totalUnits: number;
-  occupiedUnits: number;
-  adminId: string;
-  createdAt: string;
-  isActive: boolean;
 }
 
 export interface DefaulterRecord {
