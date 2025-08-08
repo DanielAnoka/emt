@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { UserRole } from '../../types';
@@ -11,7 +12,6 @@ import {
   Settings, 
   Shield,
   UserCog,
-  Key,
   BarChart3,
   Bell,
   AlertTriangle
@@ -31,8 +31,8 @@ const menuItems: MenuItem[] = [
   { id: 'charges', name: 'Charges', icon: CreditCard, roles: ['super_admin', 'estate_admin'] },
   { id: 'payments', name: 'Payments', icon: CreditCard, roles: ['landlord', 'tenant'] },
   { id: 'defaulters', name: 'Defaulters', icon: AlertTriangle, roles: ['super_admin', 'estate_admin'] },
-  { id: 'compliance', name: 'Compliance', icon: FileText, roles: ['super_admin', 'estate_admin'] },
-  { id: 'search', name: 'Public Search', icon: Search, roles: ['super_admin', 'estate_admin', 'agent'] },
+  // { id: 'compliance', name: 'Compliance', icon: FileText, roles: ['super_admin', 'estate_admin'] },
+  // { id: 'search', name: 'Public Search', icon: Search, roles: ['super_admin', 'estate_admin', 'agent'] },
   { id: 'reports', name: 'Reports', icon: BarChart3, roles: ['super_admin', 'estate_admin'] },
   { id: 'notifications', name: 'Notifications', icon: Bell, roles: ['super_admin', 'estate_admin'] },
   { id: 'roles', name: 'Roles & Permissions', icon: Shield, roles: ['super_admin'] },
