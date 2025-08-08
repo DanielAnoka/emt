@@ -4,6 +4,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 
 interface LoginFormProps {
   onSuccess: () => void;
+  
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {

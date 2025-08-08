@@ -41,7 +41,7 @@ const AppContent: React.FC = () => {
     if (!showLogin) {
       return <LandingPage onGetStarted={handleGetStarted} />;
     }
-    return <LoginForm onSuccess={handleLogin} />;
+    return <LoginForm onSuccess={handleLogin}   />;
   }
 
   const renderContent = () => {

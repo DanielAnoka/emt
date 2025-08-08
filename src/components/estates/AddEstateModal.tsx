@@ -13,7 +13,7 @@ export const AddEstateModal: React.FC<AddEstateModalProps> = ({ isOpen, onClose,
     name: '',
     address: '',
     totalUnits: '',
-    adminId: '2', // Default to current estate admin
+    adminId: '2',
     isActive: true,
   });
 
