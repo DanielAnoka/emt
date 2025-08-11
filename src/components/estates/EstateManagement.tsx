@@ -3,6 +3,8 @@ import { Estate } from '../../types';
 import { EstateCard } from './EstateCard';
 import { AddEstateModal } from './AddEstateModal';
 import { EstateDetailsModal } from './EstateDetailsModal';
+import { GenerateEstateLoginModal } from './GenerateEstateLoginModal';
+import { useAuth } from '../../hooks/useAuth';
 import { Plus, Search, Filter, Building, Users, MapPin } from 'lucide-react';
 
 // Mock data
@@ -40,10 +42,12 @@ const mockEstates: Estate[] = [
 ];
 
 export const EstateManagement: React.FC = () => {
+  const { user } = useAuth();
   const [estates, setEstates] = useState<Estate[]>(mockEstates);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedEstate, setSelectedEstate] = useState<Estate | null>(null);
+  const [estateForLogin, setEstateForLogin] = useState<Estate | null>(null);
 
   const handleAddEstate = (estateData: Omit<Estate, 'id' | 'createdAt'>) => {
     const newEstate: Estate = {
@@ -57,6 +61,18 @@ export const EstateManagement: React.FC = () => {
 
   const handleViewEstate = (estate: Estate) => {
     setSelectedEstate(estate);
+  };
+
+  const handleGenerateLogin = (estate: Estate) => {
+    setEstateForLogin(estate);
+  };
+
+  const handleToggleStatus = (estateId: string) => {
+    setEstates(prev => prev.map(estate => 
+      estate.id === estateId 
+        ? { ...estate, isActive: !estate.isActive }
+        : estate
+    ));
   };
 
   const filteredEstates = estates.filter(estate =>
@@ -158,6 +174,8 @@ export const EstateManagement: React.FC = () => {
             key={estate.id}
             estate={estate}
             onView={handleViewEstate}
+            onGenerateLogin={user?.role === 'super_admin' ? handleGenerateLogin : undefined}
+            onToggleStatus={user?.role === 'super_admin' ? handleToggleStatus : undefined}
           />
         ))}
       </div>
@@ -183,6 +201,15 @@ export const EstateManagement: React.FC = () => {
           isOpen={true}
           onClose={() => setSelectedEstate(null)}
           estate={selectedEstate}
+        />
+      )}
+
+      {/* Generate Estate Login Modal */}
+      {estateForLogin && (
+        <GenerateEstateLoginModal
+          isOpen={true}
+          onClose={() => setEstateForLogin(null)}
+          estate={estateForLogin}
         />
       )}
     </div>

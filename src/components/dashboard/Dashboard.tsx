@@ -2,8 +2,8 @@ import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { DashboardStats } from './DashboardStats';
 import { 
-  BarChart, 
-  Bar, 
+  // BarChart, 
+  // Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 

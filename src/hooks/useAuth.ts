@@ -105,6 +105,8 @@ export const useAuthProvider = () => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('estate_user');
+    // Redirect to landing page after logout
+    window.location.href = '/';
   };
 
   const register = async (userData: Partial<User>, password: string): Promise<boolean> => {

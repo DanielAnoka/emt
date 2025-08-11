@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { LandingPage } from './components/landing/LandingPage';
 import { LoginForm } from './components/auth/LoginForm';
-import { Sidebar } from './components/layout/Sidebar';
-import { Header } from './components/layout/Header';
+import { SignupForm } from './components/auth/SignupForm';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { EstateManagement } from './components/estates/EstateManagement';
 import { PropertyManagement } from './components/properties/PropertyManagement';
@@ -41,7 +41,7 @@ const AppContent: React.FC = () => {
     if (!showLogin) {
       return <LandingPage onGetStarted={handleGetStarted} />;
     }
-    return <LoginForm onSuccess={handleLogin}   />;
+    return <LoginForm onSuccess={handleLogin} />;
   }
 
   const renderContent = () => {
@@ -131,7 +131,24 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignupForm />} />
+          
+          {/* Protected Routes */}
+          <Route path="/dashboard/*" element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          } />
+          
+          {/* Redirect any unknown routes to landing */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }

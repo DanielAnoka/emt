@@ -68,6 +68,11 @@ export const EstateDetailsModal: React.FC<EstateDetailsModalProps> = ({ isOpen, 
     setSelectedUserForLogin(user);
   };
 
+  const handleAddTenantToEstateAdmin = (tenant: User) => {
+    // In a real app, this would also add the tenant to the estate admin's accessible users
+    console.log('Adding tenant to estate admin access:', tenant);
+  };
+
   if (!isOpen) return null;
 
   const occupancyRate = Math.round((estate.occupiedUnits / estate.totalUnits) * 100);

@@ -56,6 +56,9 @@ export const AddTenantToEstateModal: React.FC<AddTenantToEstateModalProps> = ({
       isActive: formData.isActive,
     });
 
+    // Also add tenant to estate admin's accessible users
+    console.log('Adding tenant to estate admin access for estate:', estate.id);
+
     // Reset form
     setFormData({
       name: '',

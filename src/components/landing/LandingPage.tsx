@@ -1,11 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Building, Users, Shield, BarChart3, CheckCircle, ArrowRight } from 'lucide-react';
 
-interface LandingPageProps {
-  onGetStarted: () => void;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+export const LandingPage: React.FC = () => {
   const features = [
     {
       icon: Building,
@@ -50,12 +47,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </div>
               <span className="text-2xl font-bold text-gray-900">EstateHub</span>
             </div>
-            <button
-              onClick={onGetStarted}
+            <Link
+              to="/login"
               className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
             >
               Sign In
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -73,13 +70,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             Manage tenants, track payments, monitor occupancy, and generate detailed reports all in one place.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={onGetStarted}
+            <Link
+              to="/signup"
               className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center"
             >
-              Get Started
+              Sign Up Free
               <ArrowRight className="w-5 h-5 ml-2" />
-            </button>
+            </Link>
+            <Link
+              to="/login"
+              className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:border-gray-400 transition-colors duration-200 flex items-center justify-center"
+            >
+              Sign In
+            </Link>
             <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:border-gray-400 transition-colors duration-200">
               Watch Demo
             </button>
@@ -163,13 +166,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <p className="text-xl text-blue-100 mb-8">
             Start managing your properties more efficiently today. No setup fees, no long-term contracts.
           </p>
-          <button
-            onClick={onGetStarted}
+          <Link
+            to="/signup"
             className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors duration-200 inline-flex items-center"
           >
             Start Free Trial
             <ArrowRight className="w-5 h-5 ml-2" />
-          </button>
+          </Link>
         </div>
       </section>
 

@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 
+<<<<<<< HEAD
 interface LoginFormProps {
   onSuccess: () => void;
   
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
+=======
+export const LoginForm: React.FC = () => {
+>>>>>>> 1fd2c82291f40df1b6856349403b3f7a577b9566
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +31,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
     const success = await login(email, password);
     if (success) {
-      onSuccess();
+      navigate('/dashboard');
     } else {
       setError('Invalid email or password');
     }
@@ -110,6 +116,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                Sign up
+              </Link>
+            </p>
+          </div>
 
           <div className="mt-8">
             <div className="text-center text-sm text-gray-600 mb-4">
