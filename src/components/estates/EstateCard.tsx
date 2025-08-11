@@ -1,13 +1,20 @@
 import React from 'react';
 import { Estate } from '../../types';
-import { MapPin, Users, Building, Eye, TrendingUp } from 'lucide-react';
+import { MapPin, Users, Building, Eye, TrendingUp, Key, Power } from 'lucide-react';
 
 interface EstateCardProps {
   estate: Estate;
   onView: (estate: Estate) => void;
+  onGenerateLogin?: (estate: Estate) => void;
+  onToggleStatus?: (estateId: string) => void;
 }
 
-export const EstateCard: React.FC<EstateCardProps> = ({ estate, onView }) => {
+export const EstateCard: React.FC<EstateCardProps> = ({ 
+  estate, 
+  onView, 
+  onGenerateLogin, 
+  onToggleStatus 
+}) => {
   const occupancyRate = Math.round((estate.occupiedUnits / estate.totalUnits) * 100);
   const vacantUnits = estate.totalUnits - estate.occupiedUnits;
 
@@ -82,13 +89,40 @@ export const EstateCard: React.FC<EstateCardProps> = ({ estate, onView }) => {
       </div>
 
       {/* Action Button */}
-      <button
-        onClick={() => onView(estate)}
-        className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors duration-150 flex items-center justify-center"
-      >
-        <Eye className="w-4 h-4 mr-2" />
-        View Details
-      </button>
+      <div className="space-y-2">
+        <button
+          onClick={() => onView(estate)}
+          className="w-full bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors duration-150 flex items-center justify-center"
+        >
+          <Eye className="w-4 h-4 mr-2" />
+          View Details
+        </button>
+        
+        <div className="flex space-x-2">
+          {onGenerateLogin && (
+            <button
+              onClick={() => onGenerateLogin(estate)}
+              className="flex-1 bg-green-50 text-green-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors duration-150 flex items-center justify-center"
+            >
+              <Key className="w-4 h-4 mr-1" />
+              Generate Login
+            </button>
+          )}
+          {onToggleStatus && (
+            <button
+              onClick={() => onToggleStatus(estate.id)}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 flex items-center justify-center ${
+                estate.isActive
+                  ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                  : 'bg-green-50 text-green-600 hover:bg-green-100'
+              }`}
+            >
+              <Power className="w-4 h-4 mr-1" />
+              {estate.isActive ? 'Disable' : 'Enable'}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

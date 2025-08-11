@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { UserRole } from '../../types';
 import { 
@@ -41,28 +42,41 @@ const menuItems: MenuItem[] = [
 ];
 
 interface SidebarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
   isMobileMenuOpen: boolean;
   onMobileMenuClose: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
-  activeTab, 
-  onTabChange, 
   isMobileMenuOpen, 
   onMobileMenuClose 
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const filteredMenuItems = menuItems.filter(item => 
     user && item.roles.includes(user.role)
   );
 
   const handleItemClick = (itemId: string) => {
-    onTabChange(itemId);
+    if (itemId === 'dashboard') {
+      navigate('/dashboard');
+    } else {
+      navigate(`/dashboard/${itemId}`);
+    }
     onMobileMenuClose();
   };
+
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/dashboard' || path === '/dashboard/') {
+      return 'dashboard';
+    }
+    const segments = path.split('/');
+    return segments[segments.length - 1] || 'dashboard';
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <>
