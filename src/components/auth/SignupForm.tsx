@@ -36,17 +36,21 @@ export const SignupForm: React.FC = () => {
       return;
     }
 
-    const success = await register({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      role: 'tenant', // Default role for public signup
-    }, formData.password);
+    try {
+      const success = await register({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+      }, formData.password);
 
-    if (success) {
-      navigate('/dashboard');
-    } else {
-      setError('Registration failed. Please try again.');
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        setError('Registration failed. Please check your information and try again.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError('An error occurred during registration. Please try again.');
     }
   };
 
