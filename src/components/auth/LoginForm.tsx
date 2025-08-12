@@ -28,6 +28,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     }
 
     try {
+
       const result = await login(email.trim(), password);
       const ok =
         typeof result === 'boolean'
@@ -56,6 +57,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     { role: 'Landlord', email: 'mike@email.com', password: 'mike123' },
     { role: 'Tenant', email: 'lisa@email.com', password: 'lisa123' },
   ] as const;
+
+
+    const success = await login(email, password);
+    if (success) {
+      navigate('/dashboard');
+    } else {
+        setError('Invalid email or password. Please check your credentials and try again.');
+    }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login. Please try again.');
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
@@ -178,6 +193,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>

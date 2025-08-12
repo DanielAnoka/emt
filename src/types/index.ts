@@ -9,6 +9,7 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   lastLogin?: string;
+  roleId?: number; // Backend role ID for reference
 }
 
 export type UserRole = 'super_admin' | 'estate_admin' | 'landlord' | 'tenant' | 'caretaker' | 'agent';
