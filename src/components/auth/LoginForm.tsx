@@ -20,20 +20,18 @@ export const LoginForm: React.FC = () => {
       return;
     }
 
+    try {
     const success = await login(email, password);
     if (success) {
       navigate('/dashboard');
     } else {
-      setError('Invalid email or password');
+        setError('Invalid email or password. Please check your credentials and try again.');
+    }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login. Please try again.');
     }
   };
-
-  const demoCredentials = [
-    { role: 'Super Admin', email: 'admin@westpoint.com', password: 'admin123' },
-    { role: 'Estate Admin', email: 'sarah@estate.com', password: 'sarah123' },
-    { role: 'Landlord', email: 'mike@email.com', password: 'mike123' },
-    { role: 'Tenant', email: 'lisa@email.com', password: 'lisa123' },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
@@ -115,27 +113,6 @@ export const LoginForm: React.FC = () => {
                 Sign up
               </Link>
             </p>
-          </div>
-
-          <div className="mt-8">
-            <div className="text-center text-sm text-gray-600 mb-4">
-              Demo Credentials:
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {demoCredentials.map((cred, index) => (
-                <div 
-                  key={index} 
-                  className="bg-gray-50 p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => {
-                    setEmail(cred.email);
-                    setPassword(cred.password);
-                  }}
-                >
-                  <div className="font-semibold text-gray-800">{cred.role}</div>
-                  <div className="text-gray-600">{cred.email}</div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
