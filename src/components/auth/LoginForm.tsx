@@ -1,39 +1,52 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
-<<<<<<< HEAD
-interface LoginFormProps {
-  onSuccess: () => void;
-  
-}
+type LoginFormProps = {
+  onSuccess?: () => void;
+};
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
-=======
-export const LoginForm: React.FC = () => {
->>>>>>> 1fd2c82291f40df1b6856349403b3f7a577b9566
+  const navigate = useNavigate();
+  const { login, isLoading } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const [error, setError] = useState<string>('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
+    if (!email.trim() || !password.trim()) {
+      setError('Please fill in all fields.');
       return;
     }
 
-    const success = await login(email, password);
-    if (success) {
-      navigate('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    try {
+      const result = await login(email.trim(), password);
+      const ok =
+        typeof result === 'boolean'
+          ? result
+          : result && typeof result === 'object'
+          ? Boolean((result as any).success)
+          : false;
+
+      if (ok) {
+        onSuccess?.();
+        navigate('/dashboard');
+      } else {
+        const message =
+          (typeof result === 'object' && (result as any)?.message) ||
+          'Invalid email or password';
+        setError(message);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Unable to sign in. Please try again.');
     }
   };
 
@@ -42,7 +55,7 @@ export const LoginForm: React.FC = () => {
     { role: 'Estate Admin', email: 'sarah@estate.com', password: 'sarah123' },
     { role: 'Landlord', email: 'mike@email.com', password: 'mike123' },
     { role: 'Tenant', email: 'lisa@email.com', password: 'lisa123' },
-  ];
+  ] as const;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
@@ -56,9 +69,12 @@ export const LoginForm: React.FC = () => {
             <p className="text-gray-600 mt-2">Sign in to your estate account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+              <div
+                role="alert"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
+              >
                 {error}
               </div>
             )}
@@ -68,14 +84,18 @@ export const LoginForm: React.FC = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your email"
+                  placeholder="you@example.com"
                 />
               </div>
             </div>
@@ -85,10 +105,13 @@ export const LoginForm: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -96,8 +119,10 @@ export const LoginForm: React.FC = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -105,6 +130,14 @@ export const LoginForm: React.FC = () => {
                     <Eye className="h-5 w-5 text-gray-400" />
                   )}
                 </button>
+              </div>
+              <div className="mt-2 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-500"
+                >
+                  Forgot password?
+                </Link>
               </div>
             </div>
 
@@ -119,7 +152,7 @@ export const LoginForm: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>
@@ -127,22 +160,21 @@ export const LoginForm: React.FC = () => {
           </div>
 
           <div className="mt-8">
-            <div className="text-center text-sm text-gray-600 mb-4">
-              Demo Credentials:
-            </div>
+            <div className="text-center text-sm text-gray-600 mb-4">Demo Credentials:</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {demoCredentials.map((cred, index) => (
-                <div 
-                  key={index} 
-                  className="bg-gray-50 p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors"
+              {demoCredentials.map((cred) => (
+                <button
+                  key={cred.role}
+                  type="button"
                   onClick={() => {
                     setEmail(cred.email);
                     setPassword(cred.password);
                   }}
+                  className="text-left bg-gray-50 p-3 rounded border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-colors"
                 >
                   <div className="font-semibold text-gray-800">{cred.role}</div>
                   <div className="text-gray-600">{cred.email}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

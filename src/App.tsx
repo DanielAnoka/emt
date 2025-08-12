@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { LandingPage } from './components/landing/LandingPage';
@@ -13,6 +14,10 @@ import { UserManagement } from './components/users/UserManagement';
 import { DefaultersManagement } from './components/defaulters/DefaultersManagement';
 import { ReportsManagement } from './components/reports/ReportsManagement';
 import { useAuth } from './hooks/useAuth';
+import { MainLayout } from './components/layout/MainLayout';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Sidebar } from './components/layout/Sidebar';
+import { Header } from './components/layout/Header';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -39,7 +44,7 @@ const AppContent: React.FC = () => {
 
   if (!user) {
     if (!showLogin) {
-      return <LandingPage onGetStarted={handleGetStarted} />;
+      return <LandingPage />;
     }
     return <LoginForm onSuccess={handleLogin} />;
   }
