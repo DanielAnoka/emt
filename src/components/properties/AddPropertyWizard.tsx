@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { Property, User, ServiceCharge } from '../../types';
 import { X, ArrowLeft, ArrowRight, Check, Home, User as UserIcon, CreditCard } from 'lucide-react';

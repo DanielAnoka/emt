@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
@@ -20,16 +21,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     e.preventDefault();
     if (isLoading) return;
 
+    const trimmedEmail = email.trim();
     setError('');
 
-    if (!email.trim() || !password.trim()) {
+    if (!trimmedEmail || !password.trim()) {
       setError('Please fill in all fields.');
       return;
     }
 
-    try {
+    // lightweight email shape check (optional)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
 
-      const result = await login(email.trim(), password);
+    try {
+      const result = await login(trimmedEmail, password);
+
       const ok =
         typeof result === 'boolean'
           ? result
@@ -58,20 +66,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
     { role: 'Tenant', email: 'lisa@email.com', password: 'lisa123' },
   ] as const;
 
-
-    const success = await login(email, password);
-    if (success) {
-      navigate('/dashboard');
-    } else {
-        setError('Invalid email or password. Please check your credentials and try again.');
-    }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('An error occurred during login. Please try again.');
-    }
-  };
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
@@ -88,6 +82,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
             {error && (
               <div
                 role="alert"
+                aria-live="polite"
                 className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
               >
                 {error}
@@ -109,6 +104,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  aria-invalid={Boolean(error)}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="you@example.com"
                 />
@@ -147,10 +143,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
                 </button>
               </div>
               <div className="mt-2 text-right">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-500"
-                >
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
                   Forgot password?
                 </Link>
               </div>
@@ -193,7 +186,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
