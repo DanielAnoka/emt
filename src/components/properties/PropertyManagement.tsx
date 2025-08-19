@@ -117,8 +117,8 @@ export const PropertyManagement: React.FC = () => {
         bathrooms: propertyData.property.bathrooms,
         rent: propertyData.property.rent,
         serviceCharge: propertyData.property.serviceCharge,
-        isVacant: false, // Since we're adding a tenant
-        landlordId: '3', // Current user ID
+        isVacant: !propertyData.tenant, // Vacant if no tenant added
+        landlordId: propertyData.isEstateOwned ? 'estate' : 'generated-landlord-id',
         houseNumber: propertyData.property.houseNumber,
         images: [],
         amenities: [],
@@ -130,14 +130,31 @@ export const PropertyManagement: React.FC = () => {
       setIsAddWizardOpen(false);
       
       // Show success toast
+      let message = 'Property created successfully!';
+      if (!propertyData.isEstateOwned) {
+        message += ' Landlord account has been created.';
+      }
+      if (propertyData.tenant) {
+        message += ' Tenant has been added.';
+      }
+      if (propertyData.charges && propertyData.charges.length > 0) {
+        message += ` ${propertyData.charges.length} service charges have been set up.`;
+      }
+      
       setToast({
-        message: 'Property created successfully! Tenant and charges have been set up.',
+        message,
         type: 'success',
         isVisible: true,
       });
       
-      // Here you would also create the tenant and charges in a real app
-      console.log('Property created with tenant and charges:', propertyData);
+      // Log the complete data structure for debugging
+      console.log('Property created with complete data:', {
+        property: newProperty,
+        isEstateOwned: propertyData.isEstateOwned,
+        landlord: propertyData.landlord,
+        tenant: propertyData.tenant,
+        charges: propertyData.charges,
+      });
     } catch (error) {
       console.error('Error creating property:', error);
       setToast({
