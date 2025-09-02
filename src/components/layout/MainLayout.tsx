@@ -11,6 +11,7 @@ import { ChargeManagement } from '../charges/ChargeManagement';
 import { UserManagement } from '../users/UserManagement';
 import { DefaultersManagement } from '../defaulters/DefaultersManagement';
 import { ReportsManagement } from '../reports/ReportsManagement';
+import { NotificationsManagement } from '../notifications/NotificationsManagement';
 
 export const MainLayout: React.FC = () => {
   const { user } = useAuth();
@@ -49,6 +50,7 @@ export const MainLayout: React.FC = () => {
               <Route path="/payments" element={<PaymentManagement />} />
               <Route path="/defaulters" element={<DefaultersManagement />} />
               <Route path="/reports" element={<ReportsManagement />} />
+              <Route path="/notifications" element={<NotificationsManagement />} />
               <Route path="/compliance" element={
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Compliance & Monitoring</h2>
@@ -59,12 +61,6 @@ export const MainLayout: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Public Search</h2>
                   <p className="text-gray-600">Public search functionality coming soon...</p>
-                </div>
-              } />
-              <Route path="/notifications" element={
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Notifications</h2>
-                  <p className="text-gray-600">Notification system coming soon...</p>
                 </div>
               } />
               <Route path="/roles" element={

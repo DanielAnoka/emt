@@ -94,3 +94,35 @@ export interface DefaulterRecord {
   daysPastDue: number;
   category: ServiceCategory;
 }
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  readAt?: string;
+  metadata?: {
+    amount?: number;
+    propertyId?: string;
+    userId?: string;
+    estateId?: string;
+    dueDate?: string;
+    receiptId?: string;
+    paymentMethod?: string;
+    ipAddress?: string;
+    device?: string;
+    location?: string;
+    maintenanceDate?: string;
+    duration?: string;
+    requestId?: string;
+    assignedTo?: string;
+    autoPayAvailable?: boolean;
+  };
+}
+
+export type NotificationType = 'payment' | 'system' | 'alert' | 'success' | 'info' | 'user' | 'property';
+export type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
