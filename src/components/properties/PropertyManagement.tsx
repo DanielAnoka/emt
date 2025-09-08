@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Property } from '../../types';
 import { PropertyCard } from './PropertyCard';
-import { AddPropertyWizard } from './AddPropertyWizard';
+import AddPropertyWizard from './AddPropertyWizard';
 import { Toast } from '../ui/Toast';
 import { Plus, Search, Filter, Grid, List } from 'lucide-react';
 

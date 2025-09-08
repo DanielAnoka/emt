@@ -36,7 +36,7 @@ const menuItems: MenuItem[] = [
   // { id: 'compliance', name: 'Compliance', icon: FileText, roles: ['super_admin', 'estate_admin'] },
   // { id: 'search', name: 'Public Search', icon: Search, roles: ['super_admin', 'estate_admin', 'agent'] },
   { id: 'reports', name: 'Reports', icon: BarChart3, roles: ['super_admin', 'estate_admin'] },
-  { id: 'notifications', name: 'Notifications', icon: Bell, roles: ['super_admin', 'estate_admin'] },
+  { id: 'notifications', name: 'Notifications', icon: Bell, roles: ['super_admin', 'estate_admin','tenant'] },
   { id: 'roles', name: 'Roles & Permissions', icon: Shield, roles: ['super_admin'] },
   { id: 'settings', name: 'Settings', icon: Settings, roles: ['super_admin', 'estate_admin', 'landlord', 'tenant', 'caretaker', 'agent'] },
 ];
