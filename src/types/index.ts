@@ -126,3 +126,16 @@ export interface Notification {
 
 export type NotificationType = 'payment' | 'system' | 'alert' | 'success' | 'info' | 'user' | 'property';
 export type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface SystemSettings {
+  id: string;
+  key: string;
+  value: string;
+  description: string;
+  category: 'general' | 'notifications' | 'security' | 'payment' | 'estate';
+  type: 'text' | 'number' | 'boolean' | 'email' | 'password' | 'textarea';
+  isPublic: boolean;
+  estateId?: string;
+  createdAt: string;
+  updatedAt: string;
+}

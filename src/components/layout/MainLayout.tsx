@@ -12,6 +12,7 @@ import { UserManagement } from '../users/UserManagement';
 import { DefaultersManagement } from '../defaulters/DefaultersManagement';
 import { ReportsManagement } from '../reports/ReportsManagement';
 import { NotificationsManagement } from '../notifications/NotificationsManagement';
+import { SettingsManagement } from '../settings/SettingsManagement';
 
 export const MainLayout: React.FC = () => {
   const { user } = useAuth();
@@ -51,6 +52,7 @@ export const MainLayout: React.FC = () => {
               <Route path="/defaulters" element={<DefaultersManagement />} />
               <Route path="/reports" element={<ReportsManagement />} />
               <Route path="/notifications" element={<NotificationsManagement />} />
+              <Route path="/settings" element={<SettingsManagement />} />
               <Route path="/compliance" element={
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Compliance & Monitoring</h2>
@@ -67,12 +69,6 @@ export const MainLayout: React.FC = () => {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Roles & Permissions</h2>
                   <p className="text-gray-600">Role management functionality coming soon...</p>
-                </div>
-              } />
-              <Route path="/settings" element={
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Settings</h2>
-                  <p className="text-gray-600">Settings panel coming soon...</p>
                 </div>
               } />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />

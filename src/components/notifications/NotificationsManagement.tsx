@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Notification, NotificationType, NotificationPriority } from '../../types';
 import { NotificationCard } from './NotificationCard';
+import { CreateNotificationModal } from './CreateNotificationModal';
+import { useAuth } from '../../hooks/useAuth';
+import { api } from '../../utils/api';
 import { 
   Bell, 
   Search, 
@@ -14,162 +17,189 @@ import {
   Users,
   CreditCard,
   Building,
-  MoreHorizontal
+  Plus
 } from 'lucide-react';
 
-// Mock notifications data
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    userId: '4',
-    type: 'payment',
-    priority: 'high',
-    title: 'Payment Overdue',
-    message: 'Your monthly waste management fee of ₦5,000 is now 5 days overdue. Please make payment to avoid service interruption.',
-    isRead: false,
-    createdAt: '2024-01-25T10:30:00Z',
-    metadata: {
-      amount: 5000,
-      propertyId: 'prop-1',
-      dueDate: '2024-01-20',
-    },
-  },
-  {
-    id: '2',
-    userId: '4',
-    type: 'system',
-    priority: 'medium',
-    title: 'System Maintenance Scheduled',
-    message: 'Scheduled maintenance will occur on Sunday, February 4th from 2:00 AM to 4:00 AM. Services may be temporarily unavailable.',
-    isRead: false,
-    createdAt: '2024-01-24T14:15:00Z',
-    metadata: {
-      maintenanceDate: '2024-02-04',
-      duration: '2 hours',
-    },
-  },
-  {
-    id: '3',
-    userId: '4',
-    type: 'success',
-    priority: 'low',
-    title: 'Payment Confirmed',
-    message: 'Your electricity bill payment of ₦15,000 has been successfully processed. Receipt has been sent to your email.',
-    isRead: true,
-    createdAt: '2024-01-23T09:45:00Z',
-    metadata: {
-      amount: 15000,
-      receiptId: 'RCP-001',
-      paymentMethod: 'Bank Transfer',
-    },
-  },
-  {
-    id: '4',
-    userId: '4',
-    type: 'alert',
-    priority: 'urgent',
-    title: 'Security Alert',
-    message: 'Unusual login activity detected from a new device. If this was not you, please contact support immediately.',
-    isRead: false,
-    createdAt: '2024-01-22T16:20:00Z',
-    metadata: {
-      ipAddress: '192.168.1.100',
-      device: 'Chrome on Windows',
-      location: 'Lagos, Nigeria',
-    },
-  },
-  {
-    id: '5',
-    userId: '4',
-    type: 'user',
-    priority: 'medium',
-    title: 'Profile Update Required',
-    message: 'Please update your contact information to ensure you receive important notifications about your property.',
-    isRead: false,
-    createdAt: '2024-01-21T11:00:00Z',
-  },
-  {
-    id: '6',
-    userId: '4',
-    type: 'property',
-    priority: 'low',
-    title: 'Maintenance Request Update',
-    message: 'Your plumbing maintenance request for Unit B05 has been assigned to our maintenance team and will be addressed within 24 hours.',
-    isRead: true,
-    createdAt: '2024-01-20T13:30:00Z',
-    metadata: {
-      requestId: 'MR-001',
-      propertyId: 'prop-1',
-      assignedTo: 'Maintenance Team A',
-    },
-  },
-  {
-    id: '7',
-    userId: '4',
-    type: 'info',
-    priority: 'low',
-    title: 'New Feature Available',
-    message: 'We\'ve added a new mobile app for easier access to your account. Download it from the App Store or Google Play.',
-    isRead: true,
-    createdAt: '2024-01-19T08:00:00Z',
-  },
-  {
-    id: '8',
-    userId: '4',
-    type: 'payment',
-    priority: 'medium',
-    title: 'Upcoming Payment Due',
-    message: 'Your water supply service charge of ₦8,000 is due in 3 days. Set up auto-pay to never miss a payment.',
-    isRead: false,
-    createdAt: '2024-01-18T12:00:00Z',
-    metadata: {
-      amount: 8000,
-      dueDate: '2024-01-30',
-      autoPayAvailable: true,
-    },
-  },
-];
-
 export const NotificationsManagement: React.FC = () => {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | NotificationType>('all');
   const [filterPriority, setFilterPriority] = useState<'all' | NotificationPriority>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'read' | 'unread'>('all');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const handleMarkAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  // Check if user can create notifications
+  const canCreateNotifications = user?.role === 'super_admin' || user?.role === 'estate_admin';
+
+  // Check if user can see all notifications
+  const canSeeAllNotifications = user?.role === 'super_admin';
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      let endpoint = '';
+
+      if (canSeeAllNotifications) {
+        // Super admin sees all notifications
+        endpoint = '/notifications';
+      } else {
+        // Estate admin, landlord, tenant see their own notifications
+        endpoint = `/notification/${user.id}`;
+      }
+
+      const response = await api.get<{ notifications: any[] }>(endpoint);
+      
+      // Transform backend notifications to frontend format
+      const transformedNotifications = response.notifications.map((notif: any) => ({
+        id: notif.id.toString(),
+        userId: notif.user_id?.toString() || '',
+        type: mapBackendTypeToFrontend(notif.type),
+        priority: mapBackendPriorityToFrontend(notif.priority || 'medium'),
+        title: notif.title,
+        message: notif.message,
+        isRead: Boolean(notif.is_read),
+        createdAt: notif.created_at,
+        readAt: notif.read_at,
+        metadata: {
+          estateId: notif.estate_id?.toString(),
+          url: notif.url,
+        },
+      }));
+
+      setNotifications(transformedNotifications);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
+  const mapBackendTypeToFrontend = (backendType: string): NotificationType => {
+    const typeMap: Record<string, NotificationType> = {
+      'System Alert': 'system',
+      'Payment': 'payment',
+      'Alert': 'alert',
+      'Success': 'success',
+      'Info': 'info',
+      'User': 'user',
+      'Property': 'property',
+    };
+    return typeMap[backendType] || 'info';
   };
 
-  const handleDelete = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.filter(notification => notification.id !== notificationId)
-    );
+  const mapBackendPriorityToFrontend = (backendPriority: string): NotificationPriority => {
+    const priorityMap: Record<string, NotificationPriority> = {
+      'low': 'low',
+      'medium': 'medium',
+      'high': 'high',
+      'urgent': 'urgent',
+    };
+    return priorityMap[backendPriority] || 'medium';
   };
 
-  const handleDeleteAll = () => {
+  const handleCreateNotification = async (notificationData: {
+    title: string;
+    message: string;
+    type: string;
+    estateId?: string;
+    url?: string;
+  }) => {
+    try {
+      const payload: any = {
+        title: notificationData.title,
+        message: notificationData.message,
+        type: notificationData.type,
+        url: notificationData.url || '',
+        is_read: 0, // Default to unread
+      };
+
+      // Add estate_id only for estate admin
+      if (user?.role === 'estate_admin' && notificationData.estateId) {
+        payload.estate_id = parseInt(notificationData.estateId);
+      }
+
+      await api.post('/notification/create', payload);
+      
+      // Refresh notifications
+      await fetchNotifications();
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error('Failed to create notification:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      await api.put(`/notification/${notificationId}/read`, {});
+      
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId
+            ? { ...notification, isRead: true, readAt: new Date().toISOString() }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.put('/notifications/mark-all-read', {});
+      
+      setNotifications(prev =>
+        prev.map(notification => ({ 
+          ...notification, 
+          isRead: true, 
+          readAt: new Date().toISOString() 
+        }))
+      );
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
+
+  const handleDelete = async (notificationId: string) => {
+    try {
+      await api.delete(`/notification/${notificationId}`);
+      
+      setNotifications(prev =>
+        prev.filter(notification => notification.id !== notificationId)
+      );
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  const handleDeleteAll = async () => {
     if (window.confirm('Are you sure you want to delete all notifications? This action cannot be undone.')) {
-      setNotifications([]);
+      try {
+        await api.delete('/notifications');
+        setNotifications([]);
+      } catch (error) {
+        console.error('Failed to delete all notifications:', error);
+      }
     }
   };
 
   const handleView = (notificationId: string) => {
     // Mark as read when viewing
     handleMarkAsRead(notificationId);
-    // In a real app, this might open a detailed view or navigate to relevant section
-    console.log('Viewing notification:', notificationId);
+    
+    // Find notification and navigate to URL if available
+    const notification = notifications.find(n => n.id === notificationId);
+    if (notification?.metadata?.url) {
+      window.location.href = notification.metadata.url;
+    }
   };
 
   const filteredNotifications = notifications.filter(notification => {
@@ -194,15 +224,37 @@ export const NotificationsManagement: React.FC = () => {
     return notificationDate.toDateString() === today.toDateString();
   }).length;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
-          <p className="text-gray-600 mt-1">Stay updated with important alerts and messages</p>
+          <p className="text-gray-600 mt-1">
+            {canSeeAllNotifications 
+              ? 'Manage all system notifications' 
+              : 'Stay updated with important alerts and messages'
+            }
+          </p>
         </div>
         <div className="flex space-x-2">
+          {canCreateNotifications && (
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-150 flex items-center"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Notification
+            </button>
+          )}
           <button 
             onClick={handleMarkAllAsRead}
             className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-100 transition-colors duration-150 flex items-center"
@@ -210,13 +262,15 @@ export const NotificationsManagement: React.FC = () => {
             <CheckCircle className="w-4 h-4 mr-2" />
             Mark All Read
           </button>
-          <button 
-            onClick={handleDeleteAll}
-            className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-100 transition-colors duration-150 flex items-center"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Clear All
-          </button>
+          {canSeeAllNotifications && (
+            <button 
+              onClick={handleDeleteAll}
+              className="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-100 transition-colors duration-150 flex items-center"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Clear All
+            </button>
+          )}
           <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-150 flex items-center">
             <Settings className="w-4 h-4 mr-2" />
             Settings
@@ -337,44 +391,6 @@ export const NotificationsManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-            onClick={() => setFilterStatus('unread')}
-            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors duration-150"
-          >
-            <BellRing className="w-5 h-5 text-blue-600 mr-2" />
-            <span className="text-sm font-medium text-gray-700">View Unread ({unreadCount})</span>
-          </button>
-          
-          <button
-            onClick={() => setFilterPriority('urgent')}
-            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors duration-150"
-          >
-            <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
-            <span className="text-sm font-medium text-gray-700">Urgent ({urgentCount})</span>
-          </button>
-          
-          <button
-            onClick={() => setFilterType('payment')}
-            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors duration-150"
-          >
-            <CreditCard className="w-5 h-5 text-green-600 mr-2" />
-            <span className="text-sm font-medium text-gray-700">Payment Alerts</span>
-          </button>
-          
-          <button
-            onClick={() => setFilterType('system')}
-            className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors duration-150"
-          >
-            <Settings className="w-5 h-5 text-purple-600 mr-2" />
-            <span className="text-sm font-medium text-gray-700">System Updates</span>
-          </button>
-        </div>
-      </div>
-
       {/* Results Summary */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-600">
@@ -397,7 +413,7 @@ export const NotificationsManagement: React.FC = () => {
             key={notification.id}
             notification={notification}
             onMarkAsRead={handleMarkAsRead}
-            onDelete={handleDelete}
+            onDelete={canSeeAllNotifications ? handleDelete : undefined}
             onView={handleView}
           />
         ))}
@@ -416,59 +432,15 @@ export const NotificationsManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Notification Settings Panel */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">Email Notifications</h4>
-            <div className="space-y-3">
-              {[
-                { id: 'payment-reminders', label: 'Payment Reminders', enabled: true },
-                { id: 'system-updates', label: 'System Updates', enabled: true },
-                { id: 'security-alerts', label: 'Security Alerts', enabled: true },
-                { id: 'maintenance-updates', label: 'Maintenance Updates', enabled: false },
-              ].map((setting) => (
-                <div key={setting.id} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">{setting.label}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      defaultChecked={setting.enabled}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-medium text-gray-900 mb-3">Push Notifications</h4>
-            <div className="space-y-3">
-              {[
-                { id: 'urgent-alerts', label: 'Urgent Alerts', enabled: true },
-                { id: 'payment-due', label: 'Payment Due Reminders', enabled: true },
-                { id: 'new-messages', label: 'New Messages', enabled: false },
-                { id: 'weekly-summary', label: 'Weekly Summary', enabled: false },
-              ].map((setting) => (
-                <div key={setting.id} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-700">{setting.label}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      defaultChecked={setting.enabled}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Create Notification Modal */}
+      {canCreateNotifications && (
+        <CreateNotificationModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateNotification}
+          userRole={user?.role || 'tenant'}
+        />
+      )}
     </div>
   );
 };
