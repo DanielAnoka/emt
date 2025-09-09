@@ -30,6 +30,7 @@ const menuItems: MenuItem[] = [
   { id: 'users', name: 'User Management', icon: Users, roles: ['super_admin', 'estate_admin'] },
   { id: 'estates', name: 'Estate Management', icon: Building, roles: ['super_admin'] },
   { id: 'properties', name: 'Properties', icon: Building, roles: ['super_admin', 'estate_admin', 'landlord', 'caretaker'] },
+  { id: 'tenants', name: 'My Tenants', icon: UserCog, roles: ['landlord'] },
   { id: 'charges', name: 'Charges', icon: CreditCard, roles: ['super_admin', 'estate_admin'] },
   { id: 'payments', name: 'Payments', icon: CreditCard, roles: ['landlord', 'tenant'] },
   { id: 'defaulters', name: 'Defaulters', icon: AlertTriangle, roles: ['super_admin', 'estate_admin'] },

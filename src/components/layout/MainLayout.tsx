@@ -13,6 +13,7 @@ import { DefaultersManagement } from '../defaulters/DefaultersManagement';
 import { ReportsManagement } from '../reports/ReportsManagement';
 import { NotificationsManagement } from '../notifications/NotificationsManagement';
 import { SettingsManagement } from '../settings/SettingsManagement';
+import { TenantManagement } from '../tenants/TenantManagement';
 
 export const MainLayout: React.FC = () => {
   const { user } = useAuth();
@@ -47,6 +48,7 @@ export const MainLayout: React.FC = () => {
               <Route path="/users" element={<UserManagement />} />
               <Route path="/estates" element={<EstateManagement />} />
               <Route path="/properties" element={<PropertyManagement />} />
+              <Route path="/tenants" element={<TenantManagement />} />
               <Route path="/charges" element={<ChargeManagement />} />
               <Route path="/payments" element={<PaymentManagement />} />
               <Route path="/defaulters" element={<DefaultersManagement />} />
