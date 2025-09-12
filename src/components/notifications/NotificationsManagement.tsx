@@ -31,7 +31,7 @@ export const NotificationsManagement: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Check if user can create notifications
-  const canCreateNotifications = user?.role === 'super_admin' || user?.role === 'estate_admin';
+  const canCreateNotifications = user?.role === 'super_admin' || user?.role === 'estate_admin' || user?.role === 'tenant';
 
   // Check if user can see all notifications
   const canSeeAllNotifications = user?.role === 'super_admin';
